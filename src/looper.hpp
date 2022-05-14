@@ -55,11 +55,11 @@ class Panner;
 class Looper 
 {
   public:
-	Looper (AudioDriver * driver, unsigned int index, unsigned int channel_count=1, float loopsecs=40.0, bool discrete=true);
+	Looper (AudioDriver * driver, unsigned int index, unsigned int channel_count=1, float loopsecs=40.0, bool discrete=true, string name="");
 	Looper (AudioDriver * driver, XMLNode & node);
 	~Looper ();
 
-	bool initialize (unsigned int index, unsigned int channel_count=1, float loopsecs=40.0, bool discrete=true);
+	bool initialize (unsigned int index, unsigned int channel_count=1, float loopsecs=40.0, bool discrete=true, string name="");
 	void destroy();
 	
 	bool operator() () const { return _ok; }
@@ -231,6 +231,7 @@ class Looper
 
 	bool _ok;
 	volatile bool request_pending;
+	string	_loop_name;
 
 	PBD::NonBlockingLock _loop_lock;
 };

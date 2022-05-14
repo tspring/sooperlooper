@@ -27,6 +27,7 @@
 #include <pthread.h>
 #include <cerrno>
 #include <time.h>
+#include <random>
 
 #include <vector>
 #include <algorithm>
@@ -119,6 +120,8 @@ Engine::Engine ()
 	_unique_id = (int) ::time(NULL);
 
 	_transport_always_rolls = false; // this only applies for the AU plugin right now
+
+	_now = clock_gettime(CLOCK_MONOTONIC, &start);
 
 	pthread_cond_init (&_event_cond, NULL);
 
@@ -532,6 +535,22 @@ Engine::prepare_buffers(nframes_t nframes)
 	
 }
 
+string generate_name() {
+    static random_device dev;
+    static mt19937 rng(dev());
+
+    uniform_int_distribution<int> dist(0, 15);
+
+    const char *v = "0123456789abcdef";
+
+    string res;
+    for (int i = 0; i < 16; i++) {
+        res += v[dist(rng)];
+        res += v[dist(rng)];
+    }
+    return res;
+}
+
 
 bool
 Engine::add_loop (unsigned int chans, float loopsecs, bool discrete)
@@ -540,9 +559,11 @@ Engine::add_loop (unsigned int chans, float loopsecs, bool discrete)
 	
 	n = _instances.size();
 	
+	string name = generate_name();
+
 	Looper * instance;
 	
-	instance = new Looper (_driver, (unsigned int) n, chans, loopsecs, discrete || _force_discrete);
+	instance = new Looper (_driver, (unsigned int) n, chans, loopsecs, discrete || _force_discrete, name);
 	
 	if (!(*instance)()) {
 		cerr << "can't create a new loop!\n";
@@ -759,6 +780,20 @@ void Engine::process_rt_loop_manage_events ()
 	
 }
 
+void Engine::set_sync_time() {
+    clock_gettime(CLOCK_MONOTONIC, &finish);
+    _now = (finish.tv_sec - start.tv_sec);
+    _now += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+
+    if (_now >= 1) {
+        _now = 0;
+        start = finish;
+    }
+}
+
+double Engine::get_sync_time() {
+    return _now;
+}
 
 int
 Engine::process (nframes_t nframes)
@@ -769,7 +804,8 @@ Engine::process (nframes_t nframes)
 	//}
 
 	// process events
-	//cerr << "process"  << endl;
+    //cerr << "process"  << endl;
+    set_sync_time();
 
 	Event * evt;
 	RingBuffer<Event>::rw_vector vec;

@@ -63,10 +63,10 @@ static const double MaxResamplingRate = 8.0f;
 static const int SrcAudioQuality = SRC_LINEAR;
 
 
-Looper::Looper (AudioDriver * driver, unsigned int index, unsigned int chan_count, float loopsecs, bool discrete)
-	: _driver (driver), _index(index), _chan_count(chan_count), _loopsecs(loopsecs)
+Looper::Looper (AudioDriver * driver, unsigned int index, unsigned int chan_count, float loopsecs, bool discrete, string name)
+	: _driver (driver), _index(index), _chan_count(chan_count), _loopsecs(loopsecs), _loop_name(name)
 {
-	initialize (index, chan_count, loopsecs, discrete);
+	initialize (index, chan_count, loopsecs, discrete, name);
 }
 
 Looper::Looper (AudioDriver * driver, XMLNode & node)
@@ -85,7 +85,7 @@ Looper::Looper (AudioDriver * driver, XMLNode & node)
 }
 
 bool
-Looper::initialize (unsigned int index, unsigned int chan_count, float loopsecs, bool discrete)
+Looper::initialize (unsigned int index, unsigned int chan_count, float loopsecs, bool discrete, string name)
 {
 	char tmpstr[100];
 	int dummyerror;
@@ -135,6 +135,7 @@ Looper::initialize (unsigned int index, unsigned int chan_count, float loopsecs,
 	_pending_stretch = false;
 	_pending_stretch_ratio = 0.0;
 	_is_soloed = false;
+	_loop_name = name;
 
 	if (!descriptor) {
 		descriptor = create_sl_descriptor ();
@@ -1846,11 +1847,23 @@ Looper::get_state () const
 	snprintf(buf, sizeof(buf), "%.10g", _pitch_shift);
 	node->add_property ("pitch_shift", buf);
 
+
 	// panner
 	if (_panner) {
 		node->add_child_nocopy (_panner->state (true));
 	}
-	
+
+    node->add_property ("loop_name", _loop_name);
+
+	snprintf(buf, sizeof(buf), "%.10g", ports[CycleLength]);
+    node->add_property ("cycle_length", buf);
+
+	snprintf(buf, sizeof(buf), "%.10g", ports[LoopPosition]);
+    node->add_property ("loop_position", buf);
+
+	snprintf(buf, sizeof(buf), "%.10g", _driver->get_engine()->get_sync_time());
+    node->add_property ("sync_time", buf);
+
 	XMLNode *controls = new XMLNode ("Controls");
 	
 	for (int n=0; n < LASTCONTROLPORT; ++n)

@@ -80,6 +80,9 @@ class Engine
 
 	size_t get_loop_channel_count(size_t instance, bool realtime);
 	
+	void set_sync_time();
+	double get_sync_time();
+
 	int process (nframes_t);
 
 	void buffersize_changed (nframes_t);
@@ -283,6 +286,10 @@ class Engine
 	
 	int                _unique_id;
 	bool               _transport_always_rolls;
+
+	struct timespec start, finish;
+	double	_now;
+
 
    private:
 

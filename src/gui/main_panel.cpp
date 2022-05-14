@@ -1462,7 +1462,7 @@ void MainPanel::do_load_session ()
 
 void MainPanel::do_save_session (bool write_audio)
 {
-	wxString filename = do_file_selector (wxT("Choose file to save session"), wxT("slsess"), wxT("*.slsess"), wxFD_SAVE|wxFD_CHANGE_DIR|wxFD_OVERWRITE_PROMPT);
+	wxString filename = "tttruck.slsess"; //do_file_selector (wxT("Choose file to save session"), wxT("slsess"), wxT("*.slsess"), wxFD_SAVE|wxFD_CHANGE_DIR|wxFD_OVERWRITE_PROMPT);
 	
 	if ( !filename.empty() )
 	{

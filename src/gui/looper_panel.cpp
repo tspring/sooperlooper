@@ -1439,25 +1439,14 @@ LooperPanel::rate_button_event (int button, float rate)
 void
 LooperPanel::clicked_events (int button, wxString cmd)
 {
-	if (cmd == wxT("save"))
+    if (cmd == wxT("save"))
 	{
-		wxString filename = _mainpanel->do_file_selector (wxT("Choose file to save loop"),
-											      wxT("wav"), wxT("WAVE files (*.wav)|*.wav;*.WAV;*.Wav"),  wxFD_SAVE|wxFD_CHANGE_DIR|wxFD_OVERWRITE_PROMPT);
-		
-		if ( !filename.empty() )
-		{
-			// add .wav if there isn't one already
-			if (filename.size() <= 4 || (filename.size() > 4 && filename.substr(filename.size() - 4, 4) != wxT(".wav"))) {
-				filename += wxT(".wav");
-			}
-			// todo: specify format
-			_loop_control->post_save_loop (_index, filename);
-		}
-	}
+        _mainpanel->do_save_session (true);
+    }
 	else if (cmd == wxT("load"))
 	{
 		wxString filename = _mainpanel->do_file_selector(wxT("Choose file to open"), wxT(""), wxT("Audio files (*.wav,*.aif)|*.wav;*.WAV;*.Wav;*.aif;*.aiff;*.AIF;*.AIFF|All files (*.*)|*.*"), wxFD_OPEN|wxFD_CHANGE_DIR);
-		
+
 		if ( !filename.empty() )
 		{
 			_loop_control->post_load_loop (_index, filename);

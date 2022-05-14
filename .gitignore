@@ -81,3 +81,7 @@ compile
 *.deps/
 *.h.in~
 src/test_plugin/test_engine.py
+/Makecache
+*\~
+*.slsess*
+\#*\#

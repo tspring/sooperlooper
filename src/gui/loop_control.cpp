@@ -1430,7 +1430,9 @@ LoopControl::post_save_session(wxString fname, bool write_audio)
 
 	snprintf(buf, sizeof(buf), "/save_session");
 
-
+    string tttruck_url = "osc.udp://127.0.0.1:9952/";
+    lo_address _tttruck = lo_address_new_from_url(tttruck_url.c_str());
+    lo_send(_tttruck, buf, "s", (const char *) fname.ToAscii());
 	if (write_audio) {
 		if (lo_send(_osc_addr, buf, "sssi", (const char *) fname.ToAscii(), _our_url.c_str(), "/error", write_audio) == -1) {
 			return false;
